@@ -1,6 +1,7 @@
-import SocketServer
 # coding: utf-8
-
+import SocketServer
+import SimpleHTTPServer
+import os
 # Copyright 2013 Abram Hindle, Eddie Antonio Santos
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,15 +29,26 @@ import SocketServer
 
 
 class MyWebServer(SocketServer.BaseRequestHandler):
-    
+    code = 200
+    buffer
     def handle(self):
         self.data = self.request.recv(1024).strip()
+        request_list = self.data.split()
+        path =request_list[1][1:]
+        if path == '':
+            path = 'index.html'
+        try:
+            with open(path,'r') as f:
+                buffer = f.read()
+                self.request.sendall(buffer)
+        except IOError as e:
+            code = 404;
+            print "I/O error({0}): {1}".format(e.errno, e.strerror)
         print ("Got a request of: %s\n" % self.data)
-        self.request.sendall("OK")
 
 if __name__ == "__main__":
     HOST, PORT = "localhost", 8080
-
+    os.chdir('www')
     SocketServer.TCPServer.allow_reuse_address = True
     # Create the server, binding to localhost on port 9999
     server = SocketServer.TCPServer((HOST, PORT), MyWebServer)
