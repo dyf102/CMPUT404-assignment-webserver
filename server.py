@@ -57,6 +57,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 			self.request.sendall("HTTP/1.1 404 NOT FOUND\r\n")
 			self.send_header('Date', self.date_time_string())
 			self.send_header('Content-Type',"text/plain; charset=UTF-8")
+			self.send_header('Connection','closed')
 			self.end_header()
 			self.request.sendall(DEFAULT_ERROR_MESSAGE)
 		if os.access(path, os.R_OK) is True:
@@ -67,6 +68,7 @@ class MyWebServer(SocketServer.BaseRequestHandler):
 					self.request.sendall("HTTP/1.1 200 OK\r\n")
 					self.send_header('Date', self.date_time_string())
 					self.send_header('Content-Type',"text/%s"%(extend[1:]))
+					self.send_header('Connection','closed')
 					self.end_header()
 					self.request.sendall(buffer)
 			except IOError as e:
